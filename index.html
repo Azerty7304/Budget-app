@@ -126,7 +126,54 @@ button,input,select{font:inherit}
 }
 @media (min-width:651px){.installBtn{display:none!important}}
 
+
+/* V11 — mobile-first fallback, including browsers using "desktop site" */
+
+/* V12 — patrimoine séparé du premier regard */
+.viewTabs{display:flex;gap:8px;margin:10px 0 14px;padding:4px;border:1px solid var(--line);border-radius:12px;background:#f7f9f8}
+.viewTab{flex:1;border:0;background:transparent;border-radius:9px;padding:10px 14px;font-weight:800;cursor:pointer;color:#52605a}
+.viewTab.active{background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.07);color:#111}
+#patrimoineSection,#cryptoSection{display:none}
+body.patrimoine-mode .hero,body.patrimoine-mode .kpis,body.patrimoine-mode #budgetSection{display:none}
+body.patrimoine-mode #patrimoineSection,body.patrimoine-mode #cryptoSection{display:block}
+body.patrimoine-mode #wealthBreakdown{display:block}
+body:not(.patrimoine-mode) #wealthBreakdown{display:none}
+body.patrimoine-mode .hero + .kpis{display:none}
+body.patrimoine-mode .grid{grid-template-columns:minmax(0,1fr) 340px}
+body.patrimoine-mode .patrimoineIntro{display:block}
+.patrimoineIntro{display:none;margin-bottom:10px}
+.patrimoineIntro strong{display:block;font-size:13px;text-transform:uppercase;letter-spacing:.08em}
+
+html.touch-mobile body{font-size:15px}
+html.touch-mobile .app{width:100%;max-width:100%;padding:8px 10px 32px}
+html.touch-mobile header{position:sticky;top:0;z-index:50;align-items:flex-start;flex-direction:column;background:rgba(245,247,246,.98);padding:8px 0 10px;margin-bottom:8px}
+html.touch-mobile .brand{width:100%}
+html.touch-mobile .actions{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:7px}
+html.touch-mobile .actions .select{grid-column:1/-1;width:100%;min-height:42px}
+html.touch-mobile .actions .btn{min-height:42px;font-size:12px}
+html.touch-mobile .hero,html.touch-mobile .grid{grid-template-columns:1fr;gap:9px}
+html.touch-mobile .heroMain,html.touch-mobile .heroDark{padding:16px}
+html.touch-mobile .balance{font-size:34px}
+html.touch-mobile .kpis{grid-template-columns:1fr 1fr;gap:7px}
+html.touch-mobile .kpi{padding:11px}
+html.touch-mobile .row{grid-template-columns:27px minmax(0,1fr) 88px 20px;gap:6px;padding:10px 2px}
+html.touch-mobile .row .date{display:none}
+html.touch-mobile .row .name{font-size:12px;min-width:0}
+html.touch-mobile .asset{grid-template-columns:30px minmax(0,1fr) 90px 20px;gap:6px}
+html.touch-mobile .asset .type{display:none}
+html.touch-mobile .cryptoGrid{overflow-x:auto}
+html.touch-mobile input,html.touch-mobile select,html.touch-mobile button{font-size:16px}
+html.touch-mobile .btn,html.touch-mobile .check,.touch-mobile .add{min-height:42px}
 </style>
+
+<script>
+(function(){
+  try {
+    var mobile = window.matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0 || window.innerWidth <= 900;
+    if (mobile) document.documentElement.classList.add('touch-mobile');
+  } catch(e) {}
+})();
+</script>
 </head>
 <body>
 <div class="app">
@@ -144,6 +191,11 @@ button,input,select{font:inherit}
   </div>
 </header>
 
+<div class="viewTabs">
+ <button id="budgetViewBtn" class="viewTab active">📊 Budget</button>
+ <button id="patrimoineViewBtn" class="viewTab">💰 Patrimoine</button>
+</div>
+
 <section class="hero">
   <div class="card heroMain" id="balanceCard">
  <div class="eyebrow">SOLDE DISPONIBLE</div>
@@ -156,20 +208,20 @@ button,input,select{font:inherit}
  <div id="balanceText" class="heroText"></div>
  <div id="successMessage" class="successMessage"></div>
 </div>
-  <div class="heroDark"><small>PATRIMOINE SUIVI</small><div id="wealth" class="wealth">0,00 €</div><small>Épargne et placements · ne déduit pas le budget</small></div>
+  <div class="heroDark" style="display:none"><small>PATRIMOINE SUIVI</small><div id="wealth" class="wealth">0,00 €</div><small>Épargne et placements · ne déduit pas le budget</small></div>
 </section>
 
 <section class="kpis">
  <div class="card kpi"><small>Revenus</small><strong id="income" class="green">0 €</strong><small id="incomeDone">0 € encaissé</small></div>
  <div class="card kpi"><small>Dépenses</small><strong id="expense" class="red">0 €</strong><small id="expenseDone">0 € payé</small></div>
  <div class="card kpi"><small>Solde à venir</small><strong id="forecast">0 €</strong><small>revenus prévus − dépenses prévues</small></div>
- <div class="card kpi"><small>Patrimoine</small><strong id="patrimoine" class="blue">0 €</strong><small id="assetCount">0 actif</small></div>
- <div class="card kpi"><small>Crypto</small><strong id="cryptoGain">0 €</strong><small id="cryptoPct">plus-value</small></div>
+ <div class="card kpi" style="display:none"><small>Patrimoine</small><strong id="patrimoine" class="blue">0 €</strong><small id="assetCount">0 actif</small></div>
+ <div class="card kpi" style="display:none"><small>Crypto</small><strong id="cryptoGain">0 €</strong><small id="cryptoPct">plus-value</small></div>
 </section>
 
 <div class="grid">
 <main>
-<section class="card panel">
+<section id="budgetSection" class="card panel">
  <div class="head"><div><div class="title">Budget du mois</div><div id="opCount" class="muted"></div></div></div>
  <div class="tabs"><button class="tab active" data-filter="all">Tout</button><button class="tab" data-filter="todo">À effectuer</button><button class="tab" data-filter="done">Effectué</button></div>
  <div class="tools"><input id="searchInput" class="input" placeholder="Rechercher une opération…"><select id="categoryFilter" class="select"><option value="all">Toutes catégories</option></select></div>
@@ -177,15 +229,17 @@ button,input,select{font:inherit}
  <div class="section"><div class="sectionHead"><span class="sectionName">DÉPENSES</span><b id="expenseSum" class="red"></b></div><div id="expenseRows"></div><button id="addExpenseBtn" class="add">＋ Ajouter une dépense</button></div>
 </section>
 
-<section class="card panel">
+<section id="patrimoineSection" class="card panel">
+ <div class="patrimoineIntro"><strong>Patrimoine</strong><span class="muted">Tes actifs sont séparés du budget et restent invisibles depuis l’accueil.</span></div>
  <div class="head"><div><div class="title">Épargne & patrimoine</div><div class="muted">Montants déjà détenus — ils ne touchent jamais au solde du mois.</div></div><button id="privacyBtn" class="btn savingsPrivacy">◉ Afficher le total</button></div>
  <div id="savingsSummary" class="savingsSummary"></div>
+ <div id="patrimoineTotalBox" class="savingsSummary"><div class="savingsSummaryTop"><span class="muted">PATRIMOINE TOTAL</span><span class="muted">Dans cet onglet uniquement</span></div><div id="patrimoineTotalValue" class="savingsValue">••••••</div></div>
  <div id="assetRows"></div>
  <div class="note">Exemple : 23 000 € sur un Livret A = +23 000 € de patrimoine, mais 0 € de débit dans le budget.</div>
  <button id="addAssetBtn" class="add">＋ Ajouter une épargne / un placement</button>
 </section>
 
-<section class="card panel">
+<section id="cryptoSection" class="card panel">
  <div class="head"><div><div class="title">Crypto</div><div class="muted">BTC · DAI · USDC — suivi séparé du budget</div></div><button id="refreshBtn" class="btn">↻ Actualiser les cours</button></div>
  <div class="cryptoGrid"><div class="cryptoHead"><span></span><span>Crypto</span><span>Quantité</span><span>Cours €</span><span>PRU €</span><span>Objectif €</span><span>Valeur €</span></div><div id="cryptoRows"></div></div>
  <div id="cryptoStatus" class="cryptoStatus">Cours modifiables manuellement si le cours live n’est pas disponible.</div>
@@ -201,7 +255,7 @@ button,input,select{font:inherit}
  <div class="sideMetric"><span>Solde à venir</span><b id="sideForecast"></b></div>
  <div class="bar"><i id="paymentBar"></i></div><div id="paymentText" class="muted"></div>
 </section>
-<section class="card panel"><div class="title">Répartition du patrimoine</div><div id="breakdown" style="margin-top:8px"></div></section>
+<section id="wealthBreakdown" class="card panel"><div class="title">Patrimoine total & répartition</div><div class="note" style="margin-top:6px">Le total est volontairement caché sur l’accueil. Tu es dans l’onglet Patrimoine.</div><div id="breakdown" style="margin-top:8px"></div></section>
 <section class="card panel"><div class="title" style="margin-bottom:10px">Actions rapides</div><div class="quick">
  <button id="payAllBtn" class="btn">✓ Tout effectuer</button><button id="unpayAllBtn" class="btn">○ Tout décocher</button>
  <button id="quickIncomeBtn" class="btn">＋ Revenu</button><button id="quickExpenseBtn" class="btn">＋ Dépense</button>
@@ -334,7 +388,7 @@ let currentMode="income";
 const $=id=>document.getElementById(id);
 const el={
  monthSelect:$("monthSelect"),newMonth:$("newMonthBtn"),duplicate:$("duplicateBtn"),exportBtn:$("exportBtn"),importInput:$("importInput"),saveBtn:$("saveBtn"),
- saveStatus:$("saveStatus"),balance:$("balance"),balanceText:$("balanceText"),manualBalance:$("manualBalance"),setBalanceBtn:$("setBalanceBtn"),balanceCard:$("balanceCard"),successMessage:$("successMessage"),shareBtn:$("shareBtn"),privacyBtn:$("privacyBtn"),advisorAmount:$("advisorAmount"),advisorBtn:$("advisorBtn"),advisorResult:$("advisorResult"),wealth:$("wealth"),income:$("income"),incomeDone:$("incomeDone"),expense:$("expense"),expenseDone:$("expenseDone"),forecast:$("forecast"),patrimoine:$("patrimoine"),assetCount:$("assetCount"),cryptoGain:$("cryptoGain"),cryptoPct:$("cryptoPct"),
+ saveStatus:$("saveStatus"),balance:$("balance"),balanceText:$("balanceText"),manualBalance:$("manualBalance"),setBalanceBtn:$("setBalanceBtn"),balanceCard:$("balanceCard"),successMessage:$("successMessage"),shareBtn:$("shareBtn"),privacyBtn:$("privacyBtn"),advisorAmount:$("advisorAmount"),advisorBtn:$("advisorBtn"),advisorResult:$("advisorResult"),wealth:$("wealth"),income:$("income"),incomeDone:$("incomeDone"),expense:$("expense"),expenseDone:$("expenseDone"),forecast:$("forecast"),patrimoine:$("patrimoine"),assetCount:$("assetCount"),cryptoGain:$("cryptoGain"),cryptoPct:$("cryptoPct"),budgetViewBtn:$("budgetViewBtn"),patrimoineViewBtn:$("patrimoineViewBtn"),patrimoineTotalValue:$("patrimoineTotalValue"),
  opCount:$("opCount"),search:$("searchInput"),category:$("categoryFilter"),incomeRows:$("incomeRows"),expenseRows:$("expenseRows"),incomeSum:$("incomeSum"),expenseSum:$("expenseSum"),assetRows:$("assetRows"),savingsSummary:$("savingsSummary"),cryptoRows:$("cryptoRows"),
  sideIncome:$("sideIncome"),sideExpense:$("sideExpense"),sideBalance:$("sideBalance"),sideForecast:$("sideForecast"),paymentBar:$("paymentBar"),paymentText:$("paymentText"),breakdown:$("breakdown"),priceHistory:$("priceHistory"),
  modal:$("modal"),modalTitle:$("modalTitle"),modalForm:$("modalForm"),formName:$("formName"),formAmount:$("formAmount"),formType:$("formType"),formCost:$("formCost"),formNote:$("formNote"),toast:$("toast"),
@@ -427,6 +481,7 @@ function renderDashboard(){
 el.manualBalance.placeholder="Actuel : "+eur(available);el.balance.className="balance "+(available<0?"red":"");
  el.balanceText.textContent=`Départ ${eur(Number(m.openingBalance)||0)} · ${eur(incDone)} encaissé · ${eur(expDone)} payé · épargne hors budget`;
  el.wealth.textContent=eur(wealth);
+ el.patrimoineTotalValue.textContent=eur(wealth);
  el.income.textContent=eur(income);el.incomeDone.textContent=eur(incDone)+" encaissé";
  el.expense.textContent=eur(expense);el.expenseDone.textContent=eur(expDone)+" payé";
  el.forecast.textContent=eur(forecast);el.patrimoine.textContent=eur(wealth);
@@ -601,6 +656,15 @@ el.setBalanceBtn.addEventListener("click",()=>{
  toast("✓ Solde mis à jour.");
 });
 el.privacyBtn.addEventListener("click",()=>{hideSavings=!hideSavings;render();});
+function setView(mode){
+ document.body.classList.toggle("patrimoine-mode",mode==="patrimoine");
+ el.budgetViewBtn.classList.toggle("active",mode!=="patrimoine");
+ el.patrimoineViewBtn.classList.toggle("active",mode==="patrimoine");
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+el.budgetViewBtn.addEventListener("click",()=>setView("budget"));
+el.patrimoineViewBtn.addEventListener("click",()=>setView("patrimoine"));
+
 el.advisorBtn.addEventListener("click",runAdvisor);
 el.advisorAmount.addEventListener("keydown",e=>{if(e.key==="Enter")runAdvisor();});
 el.shareBtn.addEventListener("click",async()=>{

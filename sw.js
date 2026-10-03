@@ -1,4 +1,4 @@
-const CACHE = 'budget-v10-mobile-fix';
+const CACHE = 'budget-v12-patrimoine-tab';
 const ASSETS = ['./','./index.html','./manifest.json','./icons/icon-192.png','./icons/icon-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
